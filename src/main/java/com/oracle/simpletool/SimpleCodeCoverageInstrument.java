@@ -134,7 +134,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
                 build();
         Instrumenter instrumenter = env.getInstrumenter();
         instrumenter.attachLoadSourceSectionListener(filter, new GatherSourceSectionsListener(), true);
-        instrumenter.attachExecutionEventFactory(filter, new CoverageEventFactory(env));
+        instrumenter.attachExecutionEventFactory(filter, new CoverageEventFactory());
     }
 
     /**
@@ -246,13 +246,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
     }
 
     private class CoverageEventFactory implements ExecutionEventNodeFactory {
-
-        private final Env env;
-
-        CoverageEventFactory(final Env env) {
-            this.env = env;
-        }
-
+        
         public ExecutionEventNode create(final EventContext ec) {
             return new ExecutionEventNode() {
                 @CompilationFinal
