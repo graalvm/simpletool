@@ -125,7 +125,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
      * will, once executed, remove the corresponding source section from the
      * {@link #sourceToUncoveredSections set of unexecuted source sections}.
      *
-     * @param env The enviroment, used to get the {@link Instrumenter}
+     * @param env The environment, used to get the {@link Instrumenter}
      */
     private void enable(final Env env) {
         SourceSectionFilter filter = SourceSectionFilter.newBuilder().
