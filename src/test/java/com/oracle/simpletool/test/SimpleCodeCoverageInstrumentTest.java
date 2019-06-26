@@ -45,12 +45,12 @@ public class SimpleCodeCoverageInstrumentTest {
                 get(SimpleCodeCoverageInstrument.ID).
                 lookup(SimpleCodeCoverageInstrument.class);
         // We then use the looked up service to assert that it behaves as expected, just like in any other test.
-        Map<com.oracle.truffle.api.source.Source, Set<SourceSection>> sourceToUncoveredSections = coverage.getSourceToUncoveredSections();
-        Assert.assertEquals(1, sourceToUncoveredSections.size());
-        sourceToUncoveredSections.forEach((com.oracle.truffle.api.source.Source s, Set<SourceSection> v) -> {
-            List<Integer> uncoveredLineNumbers = coverage.uncoveredLineNumbers(s);
+        Map<com.oracle.truffle.api.source.Source, Set<SourceSection>> sourceToNotYetCoveredSections = coverage.getSourceToNotYetCoveredSections();
+        Assert.assertEquals(1, sourceToNotYetCoveredSections.size());
+        sourceToNotYetCoveredSections.forEach((com.oracle.truffle.api.source.Source s, Set<SourceSection> v) -> {
+            List<Integer> notYetCoveredLineNumbers = coverage.notYetCoveredLineNumbers(s);
             Object[] expected = new Integer[]{47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 61, 67};
-            Assert.assertArrayEquals(expected, uncoveredLineNumbers.toArray());
+            Assert.assertArrayEquals(expected, notYetCoveredLineNumbers.toArray());
         });
     }
 }

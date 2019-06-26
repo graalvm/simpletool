@@ -54,10 +54,10 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
      * but not yet executed {@link SourceSection}s. This is used to calculate
      * the coverage for each {@link Source}.
      */
-    private final Map<Source, Set<SourceSection>> sourceToUncoveredSections = new HashMap<>();
+    private final Map<Source, Set<SourceSection>> sourceToNotYetCoveredSections = new HashMap<>();
 
-    public Map<Source, Set<SourceSection>> getSourceToUncoveredSections() {
-        return sourceToUncoveredSections;
+    public Map<Source, Set<SourceSection>> getSourceToNotYetCoveredSections() {
+        return sourceToNotYetCoveredSections;
     }
 
     /**
@@ -123,7 +123,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
      * factory produces {@link Node Truffle Nodes} that will be inserted into
      * the AST at positions specified by the filter. Each of the inserted nodes
      * will, once executed, remove the corresponding source section from the
-     * {@link #sourceToUncoveredSections set of unexecuted source sections}.
+     * {@link #sourceToNotYetCoveredSections set of unexecuted source sections}.
      *
      * @param env The environment, used to get the {@link Instrumenter}
      */
@@ -163,28 +163,28 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
      */
     private void printResults(final Env env) {
         final PrintStream printStream = new PrintStream(env.out());
-        for (Source source : sourceToUncoveredSections.keySet()) {
+        for (Source source : sourceToNotYetCoveredSections.keySet()) {
             final String path = source.getPath();
             final int lineCount = source.getLineCount();
-            final List<Integer> uncoveredLineNumbers = uncoveredLineNumbers(source);
-            final int uncoveredLineCount = uncoveredLineNumbers.size();
-            double coveredPercentage = 100 * ((double) lineCount - uncoveredLineCount) / lineCount;
+            final List<Integer> notYetCoveredLineNumbers = notYetCoveredLineNumbers(source);
+            final int notYetCoveredSize = notYetCoveredLineNumbers.size();
+            double coveredPercentage = 100 * ((double) lineCount - notYetCoveredSize) / lineCount;
             printStream.println("==");
             printStream.println("Coverage of " + path + " is " + String.format("%.2f%%", coveredPercentage));
             printStream.println("Lines not covered by execution:");
-            for (Integer uncoveredLineNumber : uncoveredLineNumbers) {
-                printStream.println(uncoveredLineNumber + " " + source.getCharacters(uncoveredLineNumber));
+            for (Integer notYetCoveredLineNumber : notYetCoveredLineNumbers) {
+                printStream.println(notYetCoveredLineNumber + " " + source.getCharacters(notYetCoveredLineNumber));
             }
         }
     }
 
     /**
      * @param source
-     * @return A sorted list of line numers for uncovered lines of source code
-     * in the given {@link Source}
+     * @return A sorted list of line numbers for not-yet-covered lines of source
+     * code in the given {@link Source}
      */
-    public List<Integer> uncoveredLineNumbers(final Source source) {
-        Set<SourceSection> sections = sourceToUncoveredSections.get(source);
+    public List<Integer> notYetCoveredLineNumbers(final Source source) {
+        Set<SourceSection> sections = sourceToNotYetCoveredSections.get(source);
         Set<Integer> linesNotCovered = new HashSet<>();
         for (SourceSection ss : sections) {
             for (int i = ss.getStartLine(); i <= ss.getEndLine(); i++) {
@@ -229,7 +229,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
          *
          * @param event information about the event. We use this information to
          * keep our
-         * {@link #sourceToUncoveredSections set of uncovered} {@link SourceSection}s
+         * {@link #sourceToNotYetCoveredSections set of not-yet-covered} {@link SourceSection}s
          * up to date.
          */
         @Override
@@ -238,7 +238,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
             final Source source = sourceSection.getSource();
             // TODO: This should not be necesery becuase of the filter. Bug!
             if (!source.isInternal()) {
-                sourceToUncoveredSections.computeIfAbsent(source, (Source s) -> {
+                sourceToNotYetCoveredSections.computeIfAbsent(source, (Source s) -> {
                     return new HashSet<>();
                 }).add(sourceSection);
             }
@@ -270,7 +270,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
      * expressions in our case as defined by the filter given to the
      * {@link Instrumenter} in {@link #onCreate(com.oracle.truffle.api.instrumentation.TruffleInstrument.Env)
      * }), and removes the "wrapped" {@link SourceSection} from the set
-     * {@link #sourceToUncoveredSections uncovered} {@link SourceSection}.
+     * {@link #sourceToNotYetCoveredSections not-yet-covered} {@link SourceSection}.
      */
     class CoverageNode extends ExecutionEventNode {
 
@@ -290,7 +290,8 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
          * The {@link ExecutionEventNode} class let's us define several events
          * that we can intercept. The one of interest to us is {@link ExecutionEventNode#onReturnValue(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Object)
          * } as we wish to remove this nodes {@link #instrumentedSourceSection}
-         * from the {@link #sourceToUncoveredSections set of uncovered nodes}
+         * from the
+         * {@link #sourceToNotYetCoveredSections set of not-yet-covered nodes}
          * only once the node is successfully executed (as oppose to, for
          * example, {@link ExecutionEventNode#onReturnExceptional(com.oracle.truffle.api.frame.VirtualFrame, java.lang.Throwable)
          * }).
@@ -333,7 +334,7 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
                 final Source source = instrumentedSourceSection.getSource();
                 // TODO: This should not be necesery becuase of the filter. Bug!
                 if (!source.isInternal()) {
-                    sourceToUncoveredSections.get(source).remove(instrumentedSourceSection);
+                    sourceToNotYetCoveredSections.get(source).remove(instrumentedSourceSection);
                 }
             }
         }
