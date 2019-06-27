@@ -23,9 +23,8 @@ public class SimpleCodeCoverageInstrumentTest {
     public void exampleTest() throws IOException {
         // This is how we can create a context with our tool enabled if we are embeddined in java
         try (Context context = Context.newBuilder("js")
-                .option(SimpleCodeCoverageInstrument.ID + ".Enable", "true")
+                .option(SimpleCodeCoverageInstrument.ID, "true")
                 .option(SimpleCodeCoverageInstrument.ID + ".PrintCoverage", "false")
-                .allowExperimentalOptions(true)
                 .build()) {
             Source source = Source.newBuilder("js", new File("src/test/java/com/oracle/simpletool/test/test.js")).build();
             context.eval(source);
