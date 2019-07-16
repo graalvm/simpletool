@@ -173,17 +173,19 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
      */
     private void printResults(final Env env) {
         final PrintStream printStream = new PrintStream(env.out());
-        for (Source source : sourceToNotYetCoveredSections.keySet()) {
-            final String path = source.getPath();
-            final int lineCount = source.getLineCount();
-            final List<Integer> notYetCoveredLineNumbers = notYetCoveredLineNumbers(source);
-            final int notYetCoveredSize = notYetCoveredLineNumbers.size();
-            double coveredPercentage = 100 * ((double) lineCount - notYetCoveredSize) / lineCount;
-            printStream.println("==");
-            printStream.println("Coverage of " + path + " is " + String.format("%.2f%%", coveredPercentage));
-            printStream.println("Lines not covered by execution:");
-            for (Integer notYetCoveredLineNumber : notYetCoveredLineNumbers) {
-                printStream.println(notYetCoveredLineNumber + " " + source.getCharacters(notYetCoveredLineNumber));
+        synchronized (sourceToNotYetCoveredSections) {
+            for (Source source : sourceToNotYetCoveredSections.keySet()) {
+                final String path = source.getPath();
+                final int lineCount = source.getLineCount();
+                final List<Integer> notYetCoveredLineNumbers = notYetCoveredLineNumbers(source);
+                final int notYetCoveredSize = notYetCoveredLineNumbers.size();
+                double coveredPercentage = 100 * ((double) lineCount - notYetCoveredSize) / lineCount;
+                printStream.println("==");
+                printStream.println("Coverage of " + path + " is " + String.format("%.2f%%", coveredPercentage));
+                printStream.println("Lines not covered by execution:");
+                for (Integer notYetCoveredLineNumber : notYetCoveredLineNumbers) {
+                    printStream.println(notYetCoveredLineNumber + " " + source.getCharacters(notYetCoveredLineNumber));
+                }
             }
         }
     }
@@ -194,17 +196,19 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
      * code in the given {@link Source}
      */
     public List<Integer> notYetCoveredLineNumbers(final Source source) {
-        Set<SourceSection> sections = sourceToNotYetCoveredSections.get(source);
-        Set<Integer> linesNotCovered = new HashSet<>();
-        for (SourceSection ss : sections) {
-            for (int i = ss.getStartLine(); i <= ss.getEndLine(); i++) {
-                linesNotCovered.add(i);
+        synchronized (sourceToNotYetCoveredSections) {
+            Set<SourceSection> sections = sourceToNotYetCoveredSections.get(source);
+            Set<Integer> linesNotCovered = new HashSet<>();
+            for (SourceSection ss : sections) {
+                for (int i = ss.getStartLine(); i <= ss.getEndLine(); i++) {
+                    linesNotCovered.add(i);
+                }
             }
+            List<Integer> sortedLines = new ArrayList(linesNotCovered.size());
+            sortedLines.addAll(linesNotCovered);
+            sortedLines.sort(Integer::compare);
+            return sortedLines;
         }
-        List<Integer> sortedLines = new ArrayList(linesNotCovered.size());
-        sortedLines.addAll(linesNotCovered);
-        sortedLines.sort(Integer::compare);
-        return sortedLines;
     }
 
     /**
@@ -248,9 +252,11 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
             final Source source = sourceSection.getSource();
             // TODO: This should not be necesery becuase of the filter. Bug!
             if (!source.isInternal()) {
-                sourceToNotYetCoveredSections.computeIfAbsent(source, (Source s) -> {
-                    return new HashSet<>();
-                }).add(sourceSection);
+                synchronized (sourceToNotYetCoveredSections) {
+                    sourceToNotYetCoveredSections.computeIfAbsent(source, (Source s) -> {
+                        return new HashSet<>();
+                    }).add(sourceSection);
+                }
             }
         }
     }
@@ -344,7 +350,9 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
                 final Source source = instrumentedSourceSection.getSource();
                 // TODO: This should not be necesery becuase of the filter. Bug!
                 if (!source.isInternal()) {
-                    sourceToNotYetCoveredSections.get(source).remove(instrumentedSourceSection);
+                    synchronized (sourceToNotYetCoveredSections) {
+                        sourceToNotYetCoveredSections.get(source).remove(instrumentedSourceSection);
+                    }
                 }
             }
         }
