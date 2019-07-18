@@ -182,9 +182,9 @@ public final class SimpleCodeCoverageInstrument extends TruffleInstrument {
                 double coveredPercentage = 100 * ((double) lineCount - notYetCoveredSize) / lineCount;
                 printStream.println("==");
                 printStream.println("Coverage of " + path + " is " + String.format("%.2f%%", coveredPercentage));
-                printStream.println("Lines not covered by execution:");
-                for (Integer notYetCoveredLineNumber : notYetCoveredLineNumbers) {
-                    printStream.println(notYetCoveredLineNumber + " " + source.getCharacters(notYetCoveredLineNumber));
+                for (int i = 1; i <= source.getLineCount(); i++) {
+                    String covered = notYetCoveredLineNumbers.contains(i) ? "-" : "+";
+                    printStream.println(String.format("%s %s", covered, source.getCharacters(i)));
                 }
             }
         }
