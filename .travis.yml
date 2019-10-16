@@ -25,5 +25,5 @@ install:
 script:
     - mvn package
     - ./simpletool js example.js
-    - shellcheck simpletool
-    - shellcheck runJsWithCoverage.sh
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then shellcheck simpletool; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then shellcheck runJsWithCoverage.sh; fi
