@@ -6,7 +6,6 @@ language: java
 
 env:
     - GRAALVM_VERSION="19.2.0"
-    - GRAALVM_VERSION="NONE" SL_BUILD_NATIVE="false"
 
 install:
     - |
@@ -26,3 +25,5 @@ install:
 script:
     - mvn package
     - ./simpletool js example.js
+    - shellcheck simpletool
+    - shellcheck runJsWithCoverage.sh
