@@ -5,8 +5,7 @@ os:
 language: java
 
 env:
-    - GRAALVM_VERSION="19.0.2"
-    - GRAALVM_VERSION="NONE" SL_BUILD_NATIVE="false"
+    - GRAALVM_VERSION="19.2.0"
 
 install:
     - |
@@ -18,11 +17,12 @@ install:
           tar -xzf graalvm.tar.gz
           export JAVA_HOME="$(pwd)/graalvm-ce-$GRAALVM_VERSION"
           if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export JAVA_HOME="$JAVA_HOME/Contents/Home"; fi
-          "$JAVA_HOME/bin/gu" install native-image
         else
           if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export JAVA_HOME=$(/usr/libexec/java_home); fi
         fi
 
 script:
     - mvn package
-	- ./simpletool js example.js
+    - ./simpletool js example.js
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then shellcheck simpletool; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then shellcheck runJsWithCoverage.sh; fi

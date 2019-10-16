@@ -4,7 +4,7 @@
 
     <groupId>com.oracle</groupId>
     <artifactId>simpletool</artifactId>
-    <version>19.0.2-SNAPSHOT</version>
+    <version>19.2.0</version>
 
     <name>simpletool</name>
 
@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <graalvm.version>19.0.2</graalvm.version>
+        <graalvm.version>19.2.0</graalvm.version>
     </properties>
 
     <dependencies>
