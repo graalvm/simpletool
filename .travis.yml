@@ -25,4 +25,4 @@ install:
 
 script:
     - mvn package
-	- ./simpletool js example.js
+    - ./simpletool js example.js
