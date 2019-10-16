@@ -15,6 +15,6 @@ shift
 
 "$JAVA_HOME/bin/$LAUNCHER" \
     --jvm \
-    --vm.Dtruffle.class.path.append=target/simpletool-19.0.2-SNAPSHOT.jar \
+    --vm.Dtruffle.class.path.append=target/simpletool-19.2.0-SNAPSHOT.jar \
     --simple-code-coverage \
     "$@"
