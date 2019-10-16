@@ -1,4 +1,4 @@
-# Simple Tool
+# Simple Tool (Work in progress)
 
 A simple demonstration code coverage tool built using Truffle for the GraalVM.
 
