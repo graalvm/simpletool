@@ -67,7 +67,7 @@ import com.oracle.truffle.api.source.SourceSection;
  * Example for simple version of an expression coverage instrument.
  *
  * The instrument {@link #coverageMap keeps track} of all loaded {@link SourceSection}s and all
- * covered (i.e. executed) {@link SourceSection}s for each {@link Source}. At the end of the
+ * coverd (i.e. executed) {@link SourceSection}s for each {@link Source}. At the end of the
  * execution this information can be used to calculate coverage.
  *
  * The instrument is registered with the Truffle framework using the {@link Registration}
@@ -77,7 +77,7 @@ import com.oracle.truffle.api.source.SourceSection;
  * In this case the instrument itself is exported as a service and used in the
  * SimpleCoverageInstrumentTest.
  * 
- * NOTE: For the registration annotation to work the truffle dsl processor must be used (i.e. Must
+ * NOTE: Fot the registration annotation to work the truffle dsl processor must be used (i.e. Must
  * be a dependency. This is so in this maven project, as can be seen in the pom file.
  */
 @Registration(id = SimpleCoverageInstrument.ID, name = "Simple Code Coverage", version = "0.1", services = SimpleCoverageInstrument.class)
@@ -176,7 +176,7 @@ public final class SimpleCoverageInstrument extends TruffleInstrument {
     /**
      * Ensures that the coverage info gathered by the instrument is printed at the end of execution.
      *
-     * @param env The environment, used to get the {@link Instrumenter}
+     * @param env
      */
     @Override
     protected void onDispose(Env env) {
@@ -191,7 +191,7 @@ public final class SimpleCoverageInstrument extends TruffleInstrument {
      * The printing is one the the {@link Env#out output stream} specified by the {@link Env
      * enviroment}.
      *
-     * @param env The environment, used to get the {@link Instrumenter}
+     * @param env
      */
     private synchronized void printResults(final Env env) {
         final PrintStream printStream = new PrintStream(env.out());
@@ -223,7 +223,7 @@ public final class SimpleCoverageInstrument extends TruffleInstrument {
     }
 
     /**
-     * @param source The source of interest
+     * @param source
      * @return A sorted list of line numbers for not-yet-covered lines of source code in the given
      *         {@link Source}
      */

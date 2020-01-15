@@ -62,7 +62,8 @@ public final class Coverage {
     }
 
     private Set<SourceSection> nonCoveredSections() {
-        final HashSet<SourceSection> nonCovered = new HashSet<>(loaded);
+        final HashSet<SourceSection> nonCovered = new HashSet<>();
+        nonCovered.addAll(loaded);
         nonCovered.removeAll(covered);
         return nonCovered;
     }
