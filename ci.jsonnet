@@ -26,6 +26,7 @@
     capabilities+: ['darwin_sierra', 'amd64'],
     environment+: {
       MACOSX_DEPLOYMENT_TARGET: '10.11',
+      JAVA_HOME: '$JAVA_HOME/Contents/Home'
     },
   },
 
