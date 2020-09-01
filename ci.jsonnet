@@ -11,8 +11,8 @@
 
   local graalvm = {
     downloads+: {
-      JAVA_HOME: { name: 'graalvm', version: '20.1.0', platformspecific: true },
-    },
+      JAVA_HOME: { name: 'graalvm-ee-java8', version: '20.2.0', platformspecific: true },
+    }
   },
 
   local linux = {
@@ -26,6 +26,7 @@
     capabilities+: ['darwin_sierra', 'amd64'],
     environment+: {
       MACOSX_DEPLOYMENT_TARGET: '10.11',
+      JAVA_HOME: '$JAVA_HOME/Contents/Home'
     },
   },
 
