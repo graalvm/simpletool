@@ -11,7 +11,7 @@
 
   local graalvm = {
     downloads+: {
-      JAVA_HOME: { name: 'graalvm-ee-java8', version: '21.2.0', platformspecific: true },
+      JAVA_HOME: { name: 'graalvm-ee-java8', version: '21.3.0', platformspecific: true },
     }
   },
 
