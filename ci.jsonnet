@@ -5,13 +5,14 @@
     run: [
       ['mvn', 'clean'],
       ['mvn', 'package'],
+      ["$JAVA_HOME/bin/gu", 'install', 'js'],
       ['./simpletool', 'js', 'example.js'],
     ],
   },
 
   local graalvm = {
     downloads+: {
-      JAVA_HOME: { name: 'graalvm-ce-java11', version: '22.1.0', platformspecific: true },
+      JAVA_HOME: { name: 'graalvm-ce-java11', version: '22.2.0', platformspecific: true },
     }
   },
 
@@ -19,6 +20,10 @@
     capabilities+: ['linux', 'amd64'],
     packages+: {
       maven: '==3.3.9',
+    },
+    docker: {
+      image: "buildslave_ol7",
+      mount_modules: true,
     },
   },
 
