@@ -20,6 +20,10 @@
     packages+: {
       maven: '==3.3.9',
     },
+    docker: {
+      image: "buildslave_ol7",
+      mount_modules: true,
+    },
   },
 
   local darwin = {
