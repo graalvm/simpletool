@@ -5,6 +5,7 @@
     run: [
       ['mvn', 'clean'],
       ['mvn', 'package'],
+      ["$JAVA_HOME/bin/gu", 'install', 'js'],
       ['./simpletool', 'js', 'example.js'],
     ],
   },
