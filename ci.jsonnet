@@ -12,7 +12,7 @@
 
   local graalvm = {
     downloads+: {
-      JAVA_HOME: { name: 'graalvm-ce-java11', version: '22.2.0', platformspecific: true },
+      JAVA_HOME: { name: 'graalvm-ce-java11', version: '22.3.0', platformspecific: true },
     }
   },
 
