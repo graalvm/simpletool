@@ -5,14 +5,13 @@
     run: [
       ['mvn', 'clean'],
       ['mvn', 'package'],
-      ["$JAVA_HOME/bin/gu", 'install', 'js'],
-      ['./simpletool', 'js', 'example.js'],
+      ['./simpletool', 'example.js'],
     ],
   },
 
   local graalvm = {
       downloads+: {
-        JAVA_HOME: { name: 'graalvm-community-java20', version: '23.0.0', platformspecific: true },
+        JAVA_HOME: { name: 'graalvm-community-java21', version: '23.1.0', platformspecific: true },
       },
   },
 
