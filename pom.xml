@@ -48,7 +48,7 @@
     <version>${graalvm.version}</version>
     <name>simpletool</name>
     <properties>
-        <graalvm.version>23.1.0</graalvm.version>
+        <graalvm.version>25.0.2</graalvm.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -85,9 +85,17 @@
         </dependency>
         <!-- needed to run tests -->
         <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js-language</artifactId>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>js</artifactId>
             <version>${graalvm.version}</version>
+            <scope>runtime</scope>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>python</artifactId>
+            <version>${graalvm.version}</version>
+            <type>pom</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>

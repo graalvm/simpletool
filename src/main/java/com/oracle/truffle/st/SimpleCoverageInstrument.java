@@ -56,7 +56,7 @@ import org.graalvm.options.OptionValues;
 import com.oracle.truffle.api.Option;
 import com.oracle.truffle.api.instrumentation.Instrumenter;
 import com.oracle.truffle.api.instrumentation.SourceSectionFilter;
-import com.oracle.truffle.api.instrumentation.StandardTags.ExpressionTag;
+import com.oracle.truffle.api.instrumentation.StandardTags.StatementTag;
 import com.oracle.truffle.api.instrumentation.TruffleInstrument;
 import com.oracle.truffle.api.instrumentation.TruffleInstrument.Registration;
 import com.oracle.truffle.api.nodes.Node;
@@ -167,7 +167,7 @@ public final class SimpleCoverageInstrument extends TruffleInstrument {
      * @param env The environment, used to get the {@link Instrumenter}
      */
     private void enable(final Env env) {
-        SourceSectionFilter filter = SourceSectionFilter.newBuilder().tagIs(ExpressionTag.class).includeInternal(false).build();
+        SourceSectionFilter filter = SourceSectionFilter.newBuilder().tagIs(StatementTag.class).includeInternal(false).build();
         Instrumenter instrumenter = env.getInstrumenter();
         instrumenter.attachLoadSourceSectionListener(filter, new GatherSourceSectionsListener(this), true);
         instrumenter.attachExecutionEventFactory(filter, new CoverageEventFactory(this));

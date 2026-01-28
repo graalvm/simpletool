@@ -43,6 +43,7 @@ package com.oracle.truffle.st.test;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -56,75 +57,79 @@ import com.oracle.truffle.st.SimpleCoverageInstrument;
 
 public class SimpleCoverageInstrumentTest {
 
-    private static final String JS_SOURCE = "var N = 2000;\n" +
-                    "var EXPECTED = 17393;\n" +
-                    "\n" +
-                    "function Natural() {\n" +
-                    "    x = 2;\n" +
-                    "    return {\n" +
-                    "        'next' : function() { return x++; }\n" +
-                    "    };\n" +
-                    "}\n" +
-                    "\n" +
-                    "function Filter(number, filter) {\n" +
-                    "    var self = this;\n" +
-                    "    this.number = number;\n" +
-                    "    this.filter = filter;\n" +
-                    "    this.accept = function(n) {\n" +
-                    "      var filter = self;\n" +
-                    "      for (;;) {\n" +
-                    "          if (n % filter.number === 0) {\n" +
-                    "              return false;\n" +
-                    "          }\n" +
-                    "          filter = filter.filter;\n" +
-                    "          if (filter === null) {\n" +
-                    "              break;\n" +
-                    "          }\n" +
-                    "      }\n" +
-                    "      return true;\n" +
-                    "    };\n" +
-                    "    return this;\n" +
-                    "}\n" +
-                    "\n" +
-                    "function Primes(natural) {\n" +
-                    "    var self = this;\n" +
-                    "    this.natural = natural;\n" +
-                    "    this.filter = null;\n" +
-                    "    this.next = function() {\n" +
-                    "        for (;;) {\n" +
-                    "            var n = self.natural.next();\n" +
-                    "            if (self.filter === null || self.filter.accept(n)) {\n" +
-                    "                self.filter = new Filter(n, self.filter);\n" +
-                    "                return n;\n" +
-                    "            }\n" +
-                    "        }\n" +
-                    "    };\n" +
-                    "}\n" +
-                    "\n" +
-                    "var holdsAFunctionThatIsNeverCalled = function(natural) {\n" +
-                    "    var self = this;\n" +
-                    "    this.natural = natural;\n" +
-                    "    this.filter = null;\n" +
-                    "    this.next = function() {\n" +
-                    "        for (;;) {\n" +
-                    "            var n = self.natural.next();\n" +
-                    "            if (self.filter === null || self.filter.accept(n)) {\n" +
-                    "                self.filter = new Filter(n, self.filter);\n" +
-                    "                return n;\n" +
-                    "            }\n" +
-                    "        }\n" +
-                    "    };\n" +
-                    "}\n" +
-                    "\n" +
-                    "var holdsAFunctionThatIsNeverCalledOneLine = function() {return null;}\n" +
-                    "\n" +
-                    "function primesMain() {\n" +
-                    "    var primes = new Primes(Natural());\n" +
-                    "    var primArray = [];\n" +
-                    "    for (var i=0;i<=N;i++) { primArray.push(primes.next()); }\n" +
-                    "    if (primArray[N] != EXPECTED) { throw new Error('wrong prime found: ' + primArray[N]); }\n" +
-                    "}\n" +
-                    "primesMain();\n";
+    private static final String JS_SOURCE = """
+            var N = 2000;
+            var EXPECTED = 17393;
+
+            function Natural() {
+                x = 2;
+                return {
+                    'next' : function() { return x++; }
+                };
+            }
+
+            function Filter(number, filter) {
+                var self = this;
+                this.number = number;
+                this.filter = filter;
+                this.accept = function(n) {
+                  var filter = self;
+                  for (;;) {
+                      if (n % filter.number === 0) {
+                          return false;
+                      }
+                      filter = filter.filter;
+                      if (filter === null) {
+                          break;
+                      }
+                  }
+                  return true;
+                };
+                return this;
+            }
+
+            function Primes(natural) {
+                var self = this;
+                this.natural = natural;
+                this.filter = null;
+                this.next = function() {
+                    for (;;) {
+                        var n = self.natural.next();
+                        if (self.filter === null || self.filter.accept(n)) {
+                            self.filter = new Filter(n, self.filter);
+                            return n;
+                        }
+                    }
+                };
+            }
+
+            var holdsAFunctionThatIsNeverCalled = function(natural) {
+                var self = this;
+                this.natural = natural;
+                this.filter = null;
+                this.next = function() {
+                    for (;;) {
+                        var n = self.natural.next();
+                        if (self.filter === null || self.filter.accept(n)) {
+                            self.filter = new Filter(n, self.filter);
+                            return n;
+                        }
+                    }
+                };
+            }
+
+            var holdsAFunctionThatIsNeverCalledOneLine = function() {return null;}
+
+            function primesMain() {
+                var primes = new Primes(Natural());
+                var primArray = [];
+                for (var i=0;i<=N;i++) { primArray.push(primes.next()); }
+                if (primArray[N] != EXPECTED) {
+                    throw new Error('wrong prime found: ' + primArray[N]);
+                }
+            }
+            primesMain();
+            """;
 
     @Test
     public void exampleJSTest() throws IOException {
@@ -138,13 +143,17 @@ public class SimpleCoverageInstrumentTest {
         }
     }
 
+    private static void assertJSCorrect(final Context context) {
+        assertNotCoveredLines(context,  19, 23, 40, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 61, 68);
+    }
+
     // NOTE: This lookup mechanism used in this method does not work in normal deployments
     // due to Truffles class path issolation. Services can be looked up by other
     // instruments, but not by the embedder. We can do this in the tests because the
     // class path issolation is disabled in the pom.xml file by adding -XX:-UseJVMCIClassLoader to
     // the command line.
     // This command line flag should never be used in production.
-    private static void assertJSCorrect(final Context context) {
+    private static void assertNotCoveredLines(final Context context, Object... expected) {
         // We can lookup services exported by the instrument, in our case this is
         // the instrument itself but it does not have to be.
         SimpleCoverageInstrument coverageInstrument = context.getEngine().getInstruments().get(SimpleCoverageInstrument.ID).lookup(SimpleCoverageInstrument.class);
@@ -154,9 +163,27 @@ public class SimpleCoverageInstrumentTest {
         Assert.assertEquals(1, coverageMap.size());
         coverageMap.forEach((com.oracle.truffle.api.source.Source s, Coverage v) -> {
             Set<Integer> notYetCoveredLineNumbers = coverageInstrument.nonCoveredLineNumbers(s);
-            Object[] expected = new Integer[]{47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 61, 67};
             Assert.assertArrayEquals(expected, notYetCoveredLineNumbers.stream().sorted().toArray());
         });
+    }
+
+    // Similar test using Python language
+    private static final String PY_SOURCE = """
+            def foo(a, b):
+                if a > 0:
+                    return b
+                return a + b
+            foo(-4, 2)
+            """;
+
+    @Test
+    public void examplePythonTest() throws IOException {
+        Assume.assumeTrue(Engine.create().getLanguages().containsKey("python"));
+        try (Context context = Context.newBuilder("python").option(SimpleCoverageInstrument.ID, "true").option(SimpleCoverageInstrument.ID + ".PrintCoverage", "false").build()) {
+            Source source = Source.newBuilder("python", PY_SOURCE, "main").build();
+            context.eval(source);
+            assertNotCoveredLines(context, 3);
+        }
     }
 
     private static final String SL_SOURCE = "\n" +
